@@ -215,6 +215,72 @@ const posts = allPosts.sort((a, b) => new Date(b.data.date).getTime() - new Date
         <div class="brow-val" id="breakdown-total">$2,522.62</div>
       </div>
     </div>
+
+    <!-- COLLAPSIBLE ANALYSIS CARDS -->
+    <div style="margin-top:20px;">
+      <div class="brow-section-label" style="margin-bottom:12px;">Scenario Analysis</div>
+      <div class="analysis-accordion-grid">
+        <!-- Card 1: Rate Impact -->
+        <div class="acc-card" id="acc-rate">
+          <div class="acc-header" id="acc-rate-header">
+            <div class="acc-icon" style="background:#eff6ff;color:#1d4ed8;">%</div>
+            <div class="acc-summary">
+              <div class="acc-title">Rate Impact</div>
+              <div class="acc-badge" id="acc-rate-badge">+0.25% = +$46/mo</div>
+            </div>
+            <div class="acc-arrow" id="acc-rate-arrow">▼</div>
+          </div>
+          <div class="acc-content">
+            <p id="acc-rate-desc">A 0.25% increase in rate would increase your loan payment to $Y, costing an extra $XX/mo. A 0.25% decrease would save you $XX/mo.</p>
+          </div>
+        </div>
+
+        <!-- Card 2: Down Payment -->
+        <div class="acc-card" id="acc-down">
+          <div class="acc-header" id="acc-down-header">
+            <div class="acc-icon" style="background:#f0fdf4;color:#16a34a;">↘</div>
+            <div class="acc-summary">
+              <div class="acc-title">Down Payment Option</div>
+              <div class="acc-badge" id="acc-down-badge">+$5k = -$32/mo</div>
+            </div>
+            <div class="acc-arrow" id="acc-down-arrow">▼</div>
+          </div>
+          <div class="acc-content">
+            <p id="acc-down-desc">Adding $5,000 more to your down payment would reduce your loan size to $315,000, saving you $32/mo in principal & interest.</p>
+          </div>
+        </div>
+
+        <!-- Card 3: Buy Points -->
+        <div class="acc-card" id="acc-points">
+          <div class="acc-header" id="acc-points-header">
+            <div class="acc-icon" style="background:#f3e8ff;color:#a855f7;">◎</div>
+            <div class="acc-summary">
+              <div class="acc-title">Buy Points?</div>
+              <div class="acc-badge" id="acc-points-badge">Breakeven in 61 mo.</div>
+            </div>
+            <div class="acc-arrow" id="acc-points-arrow">▼</div>
+          </div>
+          <div class="acc-content">
+            <p id="acc-points-desc">Buying 1 point costs $3,200 upfront to lower your rate to 6.25%, saving $52/mo. You break even on this cost in 61 months.</p>
+          </div>
+        </div>
+
+        <!-- Card 4: Lifetime Cost -->
+        <div class="acc-card" id="acc-lifetime">
+          <div class="acc-header" id="acc-lifetime-header">
+            <div class="acc-icon" style="background:#fffbeb;color:#d97706;">📈</div>
+            <div class="acc-summary">
+              <div class="acc-title">Amortization Summary</div>
+              <div class="acc-badge" id="acc-lifetime-badge">$355,977 total interest</div>
+            </div>
+            <div class="acc-arrow" id="acc-lifetime-arrow">▼</div>
+          </div>
+          <div class="acc-content">
+            <p id="acc-lifetime-desc">Over the life of the 30-year loan, you will pay a total of $728,143 ($320,000 principal and $408,143 in interest).</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -420,7 +486,71 @@ const posts = allPosts.sort((a, b) => new Date(b.data.date).getTime() - new Date
       `;
       body.appendChild(tr);
     }
+
+    // ACCORDION CALCULATIONS
+    // 1. Rate Impact
+    const ratePlus = annualRate + 0.25;
+    const monthlyRatePlus = ratePlus / 100 / 12;
+    const PI_plus = loanAmount * (monthlyRatePlus * Math.pow(1 + monthlyRatePlus, totalPayments)) / (Math.pow(1 + monthlyRatePlus, totalPayments) - 1);
+    const rateMinus = Math.max(0, annualRate - 0.25);
+    const monthlyRateMinus = rateMinus / 100 / 12;
+    const PI_minus = loanAmount * (monthlyRateMinus * Math.pow(1 + monthlyRateMinus, totalPayments)) / (Math.pow(1 + monthlyRateMinus, totalPayments) - 1);
+    const diffPlus = PI_plus - monthlyPI;
+    const diffMinus = monthlyPI - PI_minus;
+
+    document.getElementById('acc-rate-badge').textContent = `+0.25% = +$${Math.round(diffPlus)}/mo`;
+    document.getElementById('acc-rate-desc').textContent = `Your current interest rate is ${annualRate.toFixed(2)}%. A 0.25% rate increase would raise your principal & interest payment to $${Math.round(PI_plus).toLocaleString()} (+$${Math.round(diffPlus)}/mo), while a 0.25% decrease would reduce it to $${Math.round(PI_minus).toLocaleString()} (-$${Math.round(diffMinus)}/mo).`;
+
+    // 2. Down Payment Option
+    const addDP = 5000;
+    const newLoanAmount = Math.max(0, loanAmount - addDP);
+    let newPI = 0;
+    if (monthlyRate > 0) {
+      newPI = newLoanAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / (Math.pow(1 + monthlyRate, totalPayments) - 1);
+    } else {
+      newPI = newLoanAmount / totalPayments;
+    }
+    const newDownPayment = downPayment + addDP;
+    const newIsPmiActive = newDownPayment < (homePrice * 0.20);
+    const newMonthlyPmi = newIsPmiActive ? (newLoanAmount * 0.005) / 12 : 0;
+    const totalNewSavings = (monthlyPI + monthlyPmi) - (newPI + newMonthlyPmi);
+
+    document.getElementById('acc-down-badge').textContent = `+$5k = -$${Math.round(totalNewSavings)}/mo`;
+    document.getElementById('acc-down-desc').textContent = `Adding $5,000 more to your down payment would reduce your loan size to $${Math.round(newLoanAmount).toLocaleString()}, saving you $${Math.round(totalNewSavings)}/mo in total payments${!newIsPmiActive && isPmiActive ? ' (and completely eliminate your PMI!)' : ''}.`;
+
+    // 3. Buy Points
+    const pointsCost = loanAmount * 0.01;
+    const rateWithPoints = Math.max(0, annualRate - 0.25);
+    const monthlyRatePoints = rateWithPoints / 100 / 12;
+    const PI_points = loanAmount * (monthlyRatePoints * Math.pow(1 + monthlyRatePoints, totalPayments)) / (Math.pow(1 + monthlyRatePoints, totalPayments) - 1);
+    const monthlySavingsPoints = monthlyPI - PI_points;
+    const breakevenMonths = monthlySavingsPoints > 0 ? Math.ceil(pointsCost / monthlySavingsPoints) : 0;
+
+    document.getElementById('acc-points-badge').textContent = `Breakeven in ${breakevenMonths} mo.`;
+    document.getElementById('acc-points-desc').textContent = `Buying 1 discount point costs $${Math.round(pointsCost).toLocaleString()} upfront at closing and lowers your interest rate by 0.25%, saving you $${Math.round(monthlySavingsPoints)}/mo in P&I. You will break even on this upfront cost in ${breakevenMonths} months.`;
+
+    // 4. Lifetime Amortization
+    const lifetimePI = monthlyPI * totalPayments;
+    const totalInterestPaid = Math.max(0, lifetimePI - loanAmount);
+
+    document.getElementById('acc-lifetime-badge').textContent = `$${Math.round(totalInterestPaid).toLocaleString()} total interest`;
+    document.getElementById('acc-lifetime-desc').textContent = `Over the life of the ${termYears}-year loan, you will pay a total of $${Math.round(lifetimePI).toLocaleString()} in Principal & Interest. This consists of $${Math.round(loanAmount).toLocaleString()} principal and $${Math.round(totalInterestPaid).toLocaleString()} in total interest.`;
   }
+
+  // Accordion click handlers setup
+  const accordions = ['acc-rate', 'acc-down', 'acc-points', 'acc-lifetime'];
+  accordions.forEach(id => {
+    const card = document.getElementById(id);
+    const header = document.getElementById(id + '-header');
+    header.addEventListener('click', () => {
+      accordions.forEach(otherId => {
+        if (otherId !== id) {
+          document.getElementById(otherId).classList.remove('open');
+        }
+      });
+      card.classList.toggle('open');
+    });
+  });
 
   // Input sync logic
   homePriceInput.addEventListener('input', () => {
