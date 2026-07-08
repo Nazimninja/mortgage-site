@@ -1,0 +1,80 @@
+---
+import Base from '../../layouts/Base.astro';
+import BlogThumbnail from '../../components/BlogThumbnail.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog');
+const posts = allPosts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+const featured = posts.filter(p => p.data.featured);
+const rest = posts.filter(p => !p.data.featured);
+
+const tags = [...new Set(posts.map(p => p.data.tag))];
+---
+<Base title="Mortgage Guides & Blog 2025 | MortgageCalc.us" description="Free mortgage guides — how mortgages work, PMI, paying off early, refinancing, credit scores, and first-time buyer tips. Updated for 2025." page="blog">
+
+<div style="padding:4rem 1.5rem 2rem;text-align:center;max-width:640px;margin:0 auto;">
+  <div class="sec-label">Blog</div>
+  <h1 style="font-family:var(--font-display);font-size:clamp(28px,5vw,42px);font-weight:700;letter-spacing:-1.5px;margin:0.5rem 0 1rem;">Mortgage guides</h1>
+  <p style="font-size:16px;color:var(--ink3);line-height:1.65;">Plain-English guides on buying a home, understanding your mortgage, saving money, and building equity.</p>
+</div>
+
+<!-- FEATURED POSTS -->
+{featured.length > 0 && (
+  <section style="padding:0 0 3rem;">
+    <div class="container">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:1rem;">Featured guides</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">
+        {featured.map(post => (
+          <a href={`/blog/${post.slug}`} class="blog-card" style="display:flex;flex-direction:column;">
+            <BlogThumbnail title={post.data.title} tag={post.data.tag} color={post.data.color} icon={post.data.icon} size="large" />
+            <div class="blog-card-body" style="flex:1;">
+              <div class="blog-tag">{post.data.tag}</div>
+              <div class="blog-card-title">{post.data.title}</div>
+              <div class="blog-card-excerpt">{post.data.description}</div>
+              <div class="blog-card-meta"><span>{post.data.date}</span><span>·</span><span>{post.data.readTime} read</span></div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- TAG FILTER -->
+<section style="padding:0 0 1.5rem;">
+  <div class="container">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="/blog" class="tag-pill active">All ({posts.length})</a>
+      {tags.map(tag => (
+        <span class="tag-pill">{tag} ({posts.filter(p=>p.data.tag===tag).length})</span>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- ALL POSTS GRID -->
+<section style="padding:0 0 5rem;">
+  <div class="container">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:1rem;">All {posts.length} articles</div>
+    <div class="blog-grid">
+      {rest.map(post => (
+        <a href={`/blog/${post.slug}`} class="blog-card">
+          <BlogThumbnail title={post.data.title} tag={post.data.tag} color={post.data.color} icon={post.data.icon} />
+          <div class="blog-card-body">
+            <div class="blog-tag">{post.data.tag}</div>
+            <div class="blog-card-title">{post.data.title}</div>
+            <div class="blog-card-excerpt">{post.data.description}</div>
+            <div class="blog-card-meta"><span>{post.data.date}</span><span>·</span><span>{post.data.readTime} read</span></div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+</Base>
+
+<style>
+.tag-pill { font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;background:var(--surf);border:1.5px solid var(--bd2);color:var(--ink3);text-decoration:none;cursor:pointer;transition:all 0.14s; }
+.tag-pill.active, .tag-pill:hover { background:var(--blue);color:#fff;border-color:var(--blue); }
+</style>

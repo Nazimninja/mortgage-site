@@ -1,0 +1,479 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog');
+const posts = allPosts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()).slice(0, 3);
+---
+
+<Base title="Home Affordability Calculator 2025 | MortgageCalc.us" description="How much house can I afford? Calculate your maximum home buying budget based on income, monthly debt payments, and down payment." page="afford">
+
+<div class="hero">
+  <div class="hero-chip">
+    <div class="hero-chip-dot"></div>
+    <span>DTI Debt-to-Income Rules</span>
+  </div>
+  <h1>How Much House <strong>Can I Afford?</strong></h1>
+  <p class="hero-sub">Enter your income and current debts to calculate your home buying budget using the standard 28/36 rule.</p>
+  
+  <div class="hero-stats">
+    <div class="hstat">
+      <div class="hstat-n" id="stat-afford-price">$385,000</div>
+      <div class="hstat-l">Moderate Home Budget</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-n" id="stat-afford-payment">$2,250/mo</div>
+      <div class="hstat-l">Housing Payment</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-n" id="stat-afford-dti">33% / 40%</div>
+      <div class="hstat-l">Target DTI Limit</div>
+    </div>
+  </div>
+</div>
+
+<div class="tool-grid">
+  <!-- INPUTS CARD -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon" style="background:var(--bluel);color:var(--blue);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 7h6M9 12h6M9 17h6"/></svg>
+      </div>
+      <div>
+        <div class="ch-title">Income & Debts</div>
+        <div class="ch-sub">Enter your gross annual income and liabilities</div>
+      </div>
+    </div>
+
+    <!-- Annual Income & Monthly Debts -->
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:12px;margin-bottom:14px;">
+      <div>
+        <label class="lbl" for="annual-income">Annual Income (Gross)</label>
+        <div class="pfx">
+          <span>$</span>
+          <input type="number" id="annual-income" value="100000" min="5000" step="5000" />
+        </div>
+      </div>
+      <div>
+        <label class="lbl" for="monthly-debts">Monthly Debts</label>
+        <div class="pfx">
+          <span>$</span>
+          <input type="number" id="monthly-debts" value="500" min="0" step="50" />
+        </div>
+        <span class="hint">Car, student loans, credit cards</span>
+      </div>
+    </div>
+
+    <!-- Down Payment & Interest Rate -->
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:12px;margin-bottom:14px;">
+      <div>
+        <label class="lbl" for="down-payment">Down Payment Saved</label>
+        <div class="pfx">
+          <span>$</span>
+          <input type="number" id="down-payment" value="30000" min="0" step="5000" />
+        </div>
+      </div>
+      <div>
+        <label class="lbl" for="interest-rate">Interest Rate</label>
+        <div class="sfx">
+          <span>%</span>
+          <input type="number" id="interest-rate" value="6.5" min="0.1" max="25" step="0.01" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Loan Term -->
+    <div class="field">
+      <label class="lbl" for="loan-term">Loan Term</label>
+      <select id="loan-term">
+        <option value="30" selected>30 Years (Fixed)</option>
+        <option value="20">20 Years (Fixed)</option>
+        <option value="15">15 Years (Fixed)</option>
+        <option value="10">10 Years (Fixed)</option>
+      </select>
+    </div>
+
+    <!-- Property Tax & Home Insurance -->
+    <div class="input-section" style="margin-top:20px;border-top:1px solid var(--bd);padding-top:16px;">
+      <div class="input-section-label">Assumed Housing Rates</div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div>
+          <label class="lbl" for="property-tax-pct">Property Tax Rate</label>
+          <div class="sfx">
+            <span>%</span>
+            <input type="number" id="property-tax-pct" value="1.2" min="0" max="10" step="0.01" />
+          </div>
+        </div>
+        <div>
+          <label class="lbl" for="home-insurance">Insurance (Annual)</label>
+          <div class="pfx">
+            <span>$</span>
+            <input type="number" id="home-insurance" value="1200" min="0" step="100" />
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="hoa-fee">HOA Fee (Monthly)</label>
+        <div class="pfx">
+          <span>$</span>
+          <input type="number" id="hoa-fee" value="0" min="0" step="10" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS CARD -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon" style="background:var(--greenl);color:var(--green);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div>
+        <div class="ch-title">Affordability Results</div>
+        <div class="ch-sub">Compare conservative, moderate, & aggressive limits</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <label class="lbl">Select Budget Risk Level</label>
+      <div style="display:flex;gap:6px;background:var(--bg);padding:4px;border-radius:10px;">
+        <button id="btn-consv" style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;border-radius:8px;cursor:pointer;background:none;color:var(--ink3);transition:all 0.14s;">Conservative</button>
+        <button id="btn-mod" style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;border-radius:8px;cursor:pointer;background:#fff;color:var(--blue);box-shadow:var(--sh);transition:all 0.14s;">Moderate</button>
+        <button id="btn-aggr" style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;border-radius:8px;cursor:pointer;background:none;color:var(--ink3);transition:all 0.14s;">Aggressive</button>
+      </div>
+    </div>
+
+    <div class="result-hero" style="background:linear-gradient(135deg, var(--green), #0f766e);">
+      <div class="result-label" id="tier-title">Moderate Purchase Budget</div>
+      <div class="result-value" id="result-price">$385,000</div>
+      <div class="result-sub" id="result-loan-amount">With a loan of $355,000 and $30,000 down payment</div>
+    </div>
+
+    <!-- Visual Breakdown Progress Bars -->
+    <div style="margin-bottom:24px;">
+      <div class="brow-section-label">Est. Housing Costs</div>
+      <div class="chart-wrap">
+        <!-- P&I -->
+        <div class="chart-row">
+          <div class="chart-lbl">Principal & Int.</div>
+          <div class="chart-track"><div class="chart-fill" id="bar-pi" style="background:var(--blue);width:80%;"></div></div>
+          <div class="chart-pct" id="pct-pi">80%</div>
+        </div>
+        <!-- Taxes -->
+        <div class="chart-row">
+          <div class="chart-lbl">Property Taxes</div>
+          <div class="chart-track"><div class="chart-fill" id="bar-tax" style="background:#f59e0b;width:13%;"></div></div>
+          <div class="chart-pct" id="pct-tax">13%</div>
+        </div>
+        <!-- Insurance -->
+        <div class="chart-row">
+          <div class="chart-lbl">Home Insurance</div>
+          <div class="chart-track"><div class="chart-fill" id="bar-ins" style="background:var(--green);width:4%;"></div></div>
+          <div class="chart-pct" id="pct-ins">4%</div>
+        </div>
+        <!-- HOA -->
+        <div class="chart-row">
+          <div class="chart-lbl">HOA Fees</div>
+          <div class="chart-track"><div class="chart-fill" id="bar-hoa" style="background:#a855f7;width:0%;"></div></div>
+          <div class="chart-pct" id="pct-hoa">0%</div>
+        </div>
+        <!-- PMI -->
+        <div class="chart-row" id="chart-row-pmi" style="display:none;">
+          <div class="chart-lbl">Private Ins (PMI)</div>
+          <div class="chart-track"><div class="chart-fill" id="bar-pmi" style="background:#ef4444;width:3%;"></div></div>
+          <div class="chart-pct" id="pct-pmi">3%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Expense Breakdown Table -->
+    <div class="breakdown">
+      <div class="brow">
+        <div class="brow-lbl"><span class="bdot" style="background:var(--blue);"></span>Principal & Interest</div>
+        <div class="brow-val" id="breakdown-pi">$2,243.86</div>
+      </div>
+      <div class="brow">
+        <div class="brow-lbl"><span class="bdot" style="background:#f59e0b;"></span>Property Taxes</div>
+        <div class="brow-val" id="breakdown-tax">$385.00</div>
+      </div>
+      <div class="brow">
+        <div class="brow-lbl"><span class="bdot" style="background:var(--green);"></span>Home Insurance</div>
+        <div class="brow-val" id="breakdown-ins">$100.00</div>
+      </div>
+      <div class="brow">
+        <div class="brow-lbl"><span class="bdot" style="background:#a855f7;"></span>HOA Fees</div>
+        <div class="brow-val" id="breakdown-hoa">$0.00</div>
+      </div>
+      <div class="brow" id="breakdown-row-pmi" style="display:none;">
+        <div class="brow-lbl"><span class="bdot" style="background:#ef4444;"></span>PMI (Under 20% Down)</div>
+        <div class="brow-val neg" id="breakdown-pmi">$147.92</div>
+      </div>
+      <div class="brow total">
+        <div class="brow-lbl">Max Housing Budget</div>
+        <div class="brow-val" id="breakdown-total">$2,750.00</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DTI TIER COMPARISON SECTION -->
+<section style="padding:1rem 0 5rem;">
+  <div class="container">
+    <div class="sec-label">Risk Tiers</div>
+    <h2 class="sec-title">Comparison of Affordability Rules</h2>
+    
+    <div class="steps">
+      <div class="step" style="border-top: 4px solid var(--blue);">
+        <div class="step-n">1</div>
+        <h3>Conservative (28/36 Rule)</h3>
+        <p>Limits housing costs to 28% of your gross income, and total debts to 36%. Ideal for buyers who want peace of mind, high savings rates, and financial safety.</p>
+        <div style="font-weight:700;color:var(--blue);font-size:16px;margin-top:14px;" id="compare-price-consv">$310,000</div>
+      </div>
+
+      <div class="step" style="border-top: 4px solid var(--green);">
+        <div class="step-n">2</div>
+        <h3>Moderate (33/40 Rule)</h3>
+        <p>A standard middle ground suitable for stable incomes. Limits housing costs to 33% of gross income and total debts to 40%.</p>
+        <div style="font-weight:700;color:var(--green);font-size:16px;margin-top:14px;" id="compare-price-mod">$385,000</div>
+      </div>
+
+      <div class="step" style="border-top: 4px solid #f59e0b;">
+        <div class="step-n">3</div>
+        <h3>Aggressive (38/45 Rule)</h3>
+        <p>Stretches budget to 38% housing / 45% total debts. Often used in high-cost-of-living areas or by buyers expecting income increases.</p>
+        <div style="font-weight:700;color:#f59e0b;font-size:16px;margin-top:14px;" id="compare-price-aggr">$450,000</div>
+      </div>
+
+      <div class="step" style="border-top: 4px solid #ef4444;">
+        <div class="step-n">4</div>
+        <h3>Your Current Debts</h3>
+        <p>Your current monthly obligations (auto loans, credit cards, student loans) subtract directly from your maximum housing capacity.</p>
+        <div style="font-weight:700;color:#ef4444;font-size:16px;margin-top:14px;" id="compare-debts">$500/mo</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATION ENGINE SCRIPT -->
+<script is:inline>
+  const incomeInput = document.getElementById('annual-income');
+  const debtsInput = document.getElementById('monthly-debts');
+  const downPaymentInput = document.getElementById('down-payment');
+  const interestRateInput = document.getElementById('interest-rate');
+  const loanTermSelect = document.getElementById('loan-term');
+  const propertyTaxPctInput = document.getElementById('property-tax-pct');
+  const homeInsuranceInput = document.getElementById('home-insurance');
+  const hoaFeeInput = document.getElementById('hoa-fee');
+
+  const btnConsv = document.getElementById('btn-consv');
+  const btnMod = document.getElementById('btn-mod');
+  const btnAggr = document.getElementById('btn-aggr');
+
+  let activeTier = 'moderate'; // conservative, moderate, aggressive
+
+  // 28/36 rule variables for calculation
+  const rules = {
+    conservative: { front: 0.28, back: 0.36 },
+    moderate: { front: 0.33, back: 0.40 },
+    aggressive: { front: 0.38, back: 0.45 }
+  };
+
+  function solveMaxHomePrice(maxMonthlyHousingPayment, downPayment, termYears, annualRate, taxRatePct, annualInsurance, monthlyHoa) {
+    const monthlyRate = annualRate / 100 / 12;
+    const totalPayments = termYears * 12;
+    
+    let factor = 0;
+    if (monthlyRate > 0) {
+      factor = (monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / (Math.pow(1 + monthlyRate, totalPayments) - 1);
+    } else {
+      factor = 1 / totalPayments;
+    }
+
+    // Binary search for exact home price
+    let low = downPayment;
+    let high = 10000000; // $10M Cap
+    let hp = (low + high) / 2;
+
+    for (let i = 0; i < 40; i++) {
+      const loan = Math.max(0, hp - downPayment);
+      const pi = loan * factor;
+      const tax = hp * (taxRatePct / 100 / 12);
+      const ins = annualInsurance / 12;
+      const pmi = loan > (hp * 0.8) ? (loan * 0.005) / 12 : 0;
+      
+      const totalMonthly = pi + tax + ins + monthlyHoa + pmi;
+      
+      if (totalMonthly > maxMonthlyHousingPayment) {
+        high = hp;
+      } else {
+        low = hp;
+      }
+      hp = (low + high) / 2;
+    }
+    
+    return hp;
+  }
+
+  function calculate() {
+    const income = parseFloat(incomeInput.value) || 0;
+    const debts = parseFloat(debtsInput.value) || 0;
+    const downPayment = parseFloat(downPaymentInput.value) || 0;
+    const annualRate = parseFloat(interestRateInput.value) || 6.5;
+    const termYears = parseFloat(loanTermSelect.value) || 30;
+    const taxRatePct = parseFloat(propertyTaxPctInput.value) || 1.2;
+    const annualInsurance = parseFloat(homeInsuranceInput.value) || 0;
+    const monthlyHoa = parseFloat(hoaFeeInput.value) || 0;
+
+    const monthlyGross = income / 12;
+
+    // Calculate maximum housing payments allowed under all three tiers
+    const calcTierPayment = (tier) => {
+      const { front, back } = rules[tier];
+      const maxFront = monthlyGross * front;
+      const maxBack = Math.max(0, (monthlyGross * back) - debts);
+      return Math.min(maxFront, maxBack);
+    };
+
+    const paymentConsv = calcTierPayment('conservative');
+    const paymentMod = calcTierPayment('moderate');
+    const paymentAggr = calcTierPayment('aggressive');
+
+    // Solve for Home Prices
+    const priceConsv = solveMaxHomePrice(paymentConsv, downPayment, termYears, annualRate, taxRatePct, annualInsurance, monthlyHoa);
+    const priceMod = solveMaxHomePrice(paymentMod, downPayment, termYears, annualRate, taxRatePct, annualInsurance, monthlyHoa);
+    const priceAggr = solveMaxHomePrice(paymentAggr, downPayment, termYears, annualRate, taxRatePct, annualInsurance, monthlyHoa);
+
+    // Update Comparison section prices
+    document.getElementById('compare-price-consv').textContent = '$' + Math.round(priceConsv).toLocaleString();
+    document.getElementById('compare-price-mod').textContent = '$' + Math.round(priceMod).toLocaleString();
+    document.getElementById('compare-price-aggr').textContent = '$' + Math.round(priceAggr).toLocaleString();
+    document.getElementById('compare-debts').textContent = '$' + Math.round(debts).toLocaleString() + '/mo';
+
+    // Set Active Tier values
+    let activePrice = priceMod;
+    let activePayment = paymentMod;
+    let activeFrontRule = 33;
+    let activeBackRule = 40;
+
+    if (activeTier === 'conservative') {
+      activePrice = priceConsv;
+      activePayment = paymentConsv;
+      activeFrontRule = 28;
+      activeBackRule = 36;
+    } else if (activeTier === 'aggressive') {
+      activePrice = priceAggr;
+      activePayment = paymentAggr;
+      activeFrontRule = 38;
+      activeBackRule = 45;
+    }
+
+    const loanAmount = Math.max(0, activePrice - downPayment);
+
+    // Update hero and stats
+    document.getElementById('stat-afford-price').textContent = '$' + Math.round(activePrice).toLocaleString();
+    document.getElementById('stat-afford-payment').textContent = '$' + Math.round(activePayment).toLocaleString() + '/mo';
+    document.getElementById('stat-afford-dti').textContent = `${activeFrontRule}% / ${activeBackRule}%`;
+
+    // Update active tier card results
+    document.getElementById('tier-title').textContent = `${activeTier.charAt(0).toUpperCase() + activeTier.slice(1)} Purchase Budget`;
+    document.getElementById('result-price').textContent = '$' + Math.round(activePrice).toLocaleString();
+    document.getElementById('result-loan-amount').textContent = `With a loan of $${Math.round(loanAmount).toLocaleString()} and $${Math.round(downPayment).toLocaleString()} down payment`;
+
+    // Update breakdown values
+    const monthlyRate = annualRate / 100 / 12;
+    const totalPayments = termYears * 12;
+    let monthlyPI = 0;
+    
+    if (loanAmount > 0) {
+      if (monthlyRate > 0) {
+        monthlyPI = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / (Math.pow(1 + monthlyRate, totalPayments) - 1);
+      } else {
+        monthlyPI = loanAmount / totalPayments;
+      }
+    }
+
+    const monthlyTax = activePrice * (taxRatePct / 100 / 12);
+    const monthlyInsurance = annualInsurance / 12;
+    const isPmiActive = downPayment < (activePrice * 0.20);
+    const monthlyPmi = isPmiActive ? (loanAmount * 0.005) / 12 : 0;
+    const totalMonthly = monthlyPI + monthlyTax + monthlyInsurance + monthlyHoa + monthlyPmi;
+
+    if (isPmiActive) {
+      document.getElementById('breakdown-row-pmi').style.display = 'flex';
+      document.getElementById('chart-row-pmi').style.display = 'flex';
+      document.getElementById('breakdown-pmi').textContent = '$' + monthlyPmi.toFixed(2);
+    } else {
+      document.getElementById('breakdown-row-pmi').style.display = 'none';
+      document.getElementById('chart-row-pmi').style.display = 'none';
+    }
+
+    document.getElementById('breakdown-pi').textContent = '$' + monthlyPI.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('breakdown-tax').textContent = '$' + monthlyTax.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('breakdown-ins').textContent = '$' + monthlyInsurance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('breakdown-hoa').textContent = '$' + monthlyHoa.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('breakdown-total').textContent = '$' + totalMonthly.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Update charts & percentages
+    const piPct = totalMonthly > 0 ? (monthlyPI / totalMonthly) * 100 : 0;
+    const taxPct = totalMonthly > 0 ? (monthlyTax / totalMonthly) * 100 : 0;
+    const insPct = totalMonthly > 0 ? (monthlyInsurance / totalMonthly) * 100 : 0;
+    const hoaPct = totalMonthly > 0 ? (monthlyHoa / totalMonthly) * 100 : 0;
+    const pmiPct = totalMonthly > 0 ? (monthlyPmi / totalMonthly) * 100 : 0;
+
+    document.getElementById('pct-pi').textContent = Math.round(piPct) + '%';
+    document.getElementById('bar-pi').style.width = piPct + '%';
+
+    document.getElementById('pct-tax').textContent = Math.round(taxPct) + '%';
+    document.getElementById('bar-tax').style.width = taxPct + '%';
+
+    document.getElementById('pct-ins').textContent = Math.round(insPct) + '%';
+    document.getElementById('bar-ins').style.width = insPct + '%';
+
+    document.getElementById('pct-hoa').textContent = Math.round(hoaPct) + '%';
+    document.getElementById('bar-hoa').style.width = hoaPct + '%';
+
+    if (isPmiActive) {
+      document.getElementById('pct-pmi').textContent = Math.round(pmiPct) + '%';
+      document.getElementById('bar-pmi').style.width = pmiPct + '%';
+    }
+  }
+
+  // Active risk level tier buttons
+  function setTier(tier, activeBtn, inactiveBtn1, inactiveBtn2) {
+    activeTier = tier;
+    activeBtn.style.background = '#fff';
+    activeBtn.style.color = 'var(--blue)';
+    activeBtn.style.boxShadow = 'var(--sh)';
+    
+    inactiveBtn1.style.background = 'none';
+    inactiveBtn1.style.color = 'var(--ink3)';
+    inactiveBtn1.style.boxShadow = 'none';
+    
+    inactiveBtn2.style.background = 'none';
+    inactiveBtn2.style.color = 'var(--ink3)';
+    inactiveBtn2.style.boxShadow = 'none';
+    
+    calculate();
+  }
+
+  btnConsv.addEventListener('click', () => setTier('conservative', btnConsv, btnMod, btnAggr));
+  btnMod.addEventListener('click', () => setTier('moderate', btnMod, btnConsv, btnAggr));
+  btnAggr.addEventListener('click', () => setTier('aggressive', btnAggr, btnConsv, btnMod));
+
+  // Input events
+  incomeInput.addEventListener('input', calculate);
+  debtsInput.addEventListener('input', calculate);
+  downPaymentInput.addEventListener('input', calculate);
+  interestRateInput.addEventListener('input', calculate);
+  loanTermSelect.addEventListener('change', calculate);
+  propertyTaxPctInput.addEventListener('input', calculate);
+  homeInsuranceInput.addEventListener('input', calculate);
+  hoaFeeInput.addEventListener('input', calculate);
+
+  // Run initial calculation
+  calculate();
+</script>
+
+</Base>

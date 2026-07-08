@@ -1,0 +1,300 @@
+---
+import Base from './Base.astro';
+import BlogThumbnail from '../components/BlogThumbnail.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const { post, headings } = Astro.props;
+const { title, description, date, tag, readTime, icon, color } = post.data;
+
+const allPosts = await getCollection('blog');
+const related = allPosts
+  .filter(p => p.slug !== post.slug && p.data.tag === tag)
+  .slice(0, 3);
+const others = allPosts
+  .filter(p => p.slug !== post.slug && p.data.tag !== tag)
+  .slice(0, 3 - related.length);
+const relatedPosts = [...related, ...others].slice(0, 3);
+---
+
+<Base
+  title={`${title} | MortgageCalc.us`}
+  description={description}
+  canonical={`https://mortgagecalc.us/blog/${post.slug}`}
+  page="blog"
+>
+
+<!-- READING PROGRESS BAR -->
+<div id="progress-bar" style="position:fixed;top:0;left:0;height:3px;background:var(--blue);width:0%;z-index:200;transition:width 0.1s linear;border-radius:0 2px 2px 0;box-shadow:0 0 8px rgba(29,78,216,0.4);"></div>
+
+<!-- ARTICLE HERO WITH THUMBNAIL -->
+<div class="post-hero">
+  <div class="container" style="max-width:780px;">
+    <div class="post-breadcrumb">
+      <a href="/">Home</a>
+      <span>›</span>
+      <a href="/blog">Blog</a>
+      <span>›</span>
+      <span>{tag}</span>
+    </div>
+    <div class="post-hero-inner">
+      <div class="post-hero-content">
+        <div class="post-tag-pill" style={`background:${color}18;color:${color};`}>{tag}</div>
+        <h1 class="post-title">{title}</h1>
+        <p class="post-intro">{description}</p>
+        <div class="post-meta">
+          <span class="meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            {date}
+          </span>
+          <span class="meta-dot">·</span>
+          <span class="meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            {readTime} read
+          </span>
+          <span class="meta-dot">·</span>
+          <span class="meta-item" id="read-pct">0% read</span>
+        </div>
+      </div>
+      <div class="post-hero-thumb">
+        <BlogThumbnail title={title} tag={tag} color={color} icon={icon} size="large" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="post-body container" style="max-width:780px;">
+  <div class="post-layout">
+
+    <!-- MAIN CONTENT -->
+    <article class="post-content" id="article-content">
+
+      <!-- QUICK ANSWER BOX -->
+      <div class="quick-answer">
+        <div class="qa-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          Quick answer
+        </div>
+        <p class="qa-text">{description}</p>
+      </div>
+
+      <!-- TABLE OF CONTENTS -->
+      <TableOfContents headings={headings} />
+
+      <!-- BLOG CONTENT -->
+      <div class="prose-content">
+        <slot />
+      </div>
+
+      <!-- SHARE + CTA -->
+      <div class="post-footer">
+        <div class="post-cta">
+          <div class="post-cta-icon" style={`background:${color};`}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div>
+            <div class="post-cta-title">Ready to calculate?</div>
+            <div class="post-cta-sub">Use our free tools — no login required</div>
+          </div>
+          <div class="post-cta-btns">
+            <a href="/" class="cta-btn primary">Mortgage Calc</a>
+            <a href="/affordability" class="cta-btn secondary">Affordability</a>
+          </div>
+        </div>
+      </div>
+
+    </article>
+
+    <!-- STICKY SIDEBAR -->
+    <aside class="post-sidebar">
+      <div class="sidebar-card" id="sticky-toc">
+        <div class="sidebar-label">In this article</div>
+        <ol class="sidebar-toc">
+          {headings.filter(h => h.depth === 2).map((h, i) => (
+            <li>
+              <a href={`#${h.slug}`} class="stoc-link" data-slug={h.slug}>
+                <span class="stoc-num">{String(i+1).padStart(2,'0')}</span>
+                <span>{h.text}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="sidebar-card sidebar-calc">
+        <div class="sidebar-label">Free calculators</div>
+        <a href="/" class="sidebar-tool">
+          <div class="st-icon" style="background:#1d4ed820;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          </div>
+          <div><div class="st-name">Mortgage Calculator</div><div class="st-sub">Monthly payment + amortization</div></div>
+        </a>
+        <a href="/affordability" class="sidebar-tool">
+          <div class="st-icon" style="background:#05966920;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          </div>
+          <div><div class="st-name">Affordability Calc</div><div class="st-sub">How much can you borrow?</div></div>
+        </a>
+        <a href="/refinance" class="sidebar-tool">
+          <div class="st-icon" style="background:#d9780620;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97806" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </div>
+          <div><div class="st-name">Refinance Calculator</div><div class="st-sub">Should you refinance?</div></div>
+        </a>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- RELATED POSTS -->
+{relatedPosts.length > 0 && (
+  <section class="related-section">
+    <div class="container">
+      <div class="sec-label" style="text-align:left;margin-bottom:6px;">Keep reading</div>
+      <div class="sec-title" style="text-align:left;font-size:clamp(20px,3vw,26px);margin-bottom:1.5rem;">Related articles</div>
+      <div class="blog-grid">
+        {relatedPosts.map(p => (
+          <a href={`/blog/${p.slug}`} class="blog-card">
+            <BlogThumbnail title={p.data.title} tag={p.data.tag} color={p.data.color} icon={p.data.icon} />
+            <div class="blog-card-body">
+              <div class="blog-tag">{p.data.tag}</div>
+              <div class="blog-card-title">{p.data.title}</div>
+              <div class="blog-card-excerpt">{p.data.description}</div>
+              <div class="blog-card-meta"><span>{p.data.date}</span><span>·</span><span>{p.data.readTime}</span></div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+</Base>
+
+<style>
+/* PROGRESS */
+#progress-bar { pointer-events: none; }
+
+/* HERO */
+.post-hero { background: linear-gradient(180deg, var(--bluell) 0%, var(--bg) 100%); border-bottom: 1px solid var(--bd); padding: 3rem 0 2.5rem; margin-bottom: 0; }
+.post-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink3); margin-bottom: 1.5rem; }
+.post-breadcrumb a { color: var(--ink3); text-decoration: none; transition: color 0.14s; }
+.post-breadcrumb a:hover { color: var(--blue); }
+.post-hero-inner { display: grid; grid-template-columns: 1fr 280px; gap: 2.5rem; align-items: center; }
+@media(max-width:720px) { .post-hero-inner { grid-template-columns: 1fr; } .post-hero-thumb { display: none; } }
+.post-tag-pill { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px; }
+.post-title { font-family: var(--font-display); font-size: clamp(24px,4vw,38px); font-weight: 700; letter-spacing: -1px; line-height: 1.12; color: var(--ink); margin-bottom: 12px; }
+.post-intro { font-size: 15.5px; color: var(--ink2); line-height: 1.65; margin-bottom: 1.25rem; }
+.post-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.meta-item { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--ink3); }
+.meta-dot { color: var(--bd2); }
+.post-hero-thumb { border-radius: var(--rl); overflow: hidden; box-shadow: var(--sh-lg); }
+
+/* BODY LAYOUT */
+.post-body { padding: 2.5rem 1.5rem 4rem; }
+.post-layout { display: grid; grid-template-columns: 1fr 240px; gap: 3rem; align-items: start; }
+@media(max-width:900px) { .post-layout { grid-template-columns: 1fr; } .post-sidebar { display: none; } }
+
+/* QUICK ANSWER */
+.quick-answer { background: var(--bluel); border: 1.5px solid rgba(29,78,216,0.18); border-radius: 14px; padding: 1.1rem 1.25rem; margin-bottom: 2rem; }
+.qa-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--blue); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.qa-text { font-size: 14px; color: var(--ink2); line-height: 1.6; margin: 0; }
+
+/* PROSE */
+.prose-content h2 { font-family: var(--font-display); font-size: clamp(18px,2.5vw,22px); font-weight: 700; letter-spacing: -0.4px; color: var(--ink); margin-top: 2.5rem; margin-bottom: 0.85rem; padding-top: 0.5rem; border-top: 1px solid var(--bd); }
+.prose-content h3 { font-family: var(--font-display); font-size: 17px; font-weight: 600; color: var(--ink); margin-top: 1.75rem; margin-bottom: 0.65rem; }
+.prose-content p { font-size: 15.5px; color: var(--ink2); line-height: 1.78; margin-bottom: 1.1rem; }
+.prose-content ul, .prose-content ol { padding-left: 1.4rem; margin-bottom: 1.25rem; }
+.prose-content li { font-size: 15.5px; color: var(--ink2); line-height: 1.75; margin-bottom: 0.5rem; }
+.prose-content a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+.prose-content strong { font-weight: 600; color: var(--ink); }
+.prose-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 14px; border-radius: 10px; overflow: hidden; border: 1px solid var(--bd); }
+.prose-content table th { background: var(--blue); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12.5px; }
+.prose-content table td { padding: 10px 14px; border-bottom: 1px solid var(--bd); color: var(--ink2); }
+.prose-content table tr:last-child td { border-bottom: none; }
+.prose-content table tr:nth-child(even) td { background: var(--bgl); }
+.prose-content blockquote { border-left: 3px solid var(--blue); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; font-size: 15.5px; color: var(--ink3); font-style: italic; }
+.prose-content .callout { background: var(--bluell); border: 1.5px solid rgba(29,78,216,0.2); border-radius: 12px; padding: 1rem 1.25rem; margin: 1.75rem 0; font-size: 14.5px; color: var(--ink2); line-height: 1.65; }
+.prose-content .callout strong { color: var(--blue); }
+.prose-content .warning { background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 1rem 1.25rem; margin: 1.75rem 0; font-size: 14.5px; color: #78350f; line-height: 1.65; }
+.prose-content .tip { background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 12px; padding: 1rem 1.25rem; margin: 1.75rem 0; font-size: 14.5px; color: #14532d; line-height: 1.65; }
+.prose-content code { font-family: var(--font-mono); font-size: 13px; background: #f1f5f9; padding: 2px 7px; border-radius: 5px; }
+
+/* POST FOOTER */
+.post-footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--bd); }
+.post-cta { background: linear-gradient(135deg, var(--blue), var(--bluem)); border-radius: 16px; padding: 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.post-cta-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.post-cta-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #fff; }
+.post-cta-sub { font-size: 12.5px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+.post-cta-btns { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+.cta-btn { padding: 9px 18px; border-radius: 9px; font-weight: 600; font-size: 13px; text-decoration: none; font-family: var(--font-display); transition: all 0.14s; white-space: nowrap; }
+.cta-btn.primary { background: #fff; color: var(--blue); }
+.cta-btn.secondary { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+
+/* SIDEBAR */
+.post-sidebar { position: sticky; top: 80px; }
+.sidebar-card { background: var(--surf); border: 1px solid var(--bd); border-radius: var(--r); padding: 1.1rem; box-shadow: var(--sh); margin-bottom: 14px; }
+.sidebar-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); margin-bottom: 10px; }
+.sidebar-toc { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
+.stoc-link { display: flex; align-items: baseline; gap: 7px; font-size: 12.5px; color: var(--ink2); text-decoration: none; padding: 5px 7px; border-radius: 7px; transition: all 0.14s; }
+.stoc-link:hover, .stoc-link.active { background: var(--bluel); color: var(--blue); }
+.stoc-num { font-family: var(--font-mono); font-size: 10.5px; color: var(--blue); font-weight: 600; flex-shrink: 0; }
+.sidebar-tool { display: flex; align-items: center; gap: 10px; padding: 8px 6px; border-radius: 9px; text-decoration: none; transition: all 0.14s; margin-bottom: 4px; }
+.sidebar-tool:hover { background: var(--bluel); }
+.st-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.st-name { font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.st-sub { font-size: 11px; color: var(--ink3); }
+
+/* RELATED */
+.related-section { padding: 3rem 0 4rem; border-top: 1px solid var(--bd); }
+</style>
+
+<script>
+// Reading progress bar
+const bar = document.getElementById('progress-bar');
+const pct = document.getElementById('read-pct');
+const article = document.getElementById('article-content');
+
+function updateProgress() {
+  if (!article || !bar) return;
+  const rect = article.getBoundingClientRect();
+  const total = article.offsetHeight - window.innerHeight;
+  const scrolled = Math.max(0, -rect.top);
+  const progress = Math.min(100, Math.round((scrolled / total) * 100));
+  bar.style.width = progress + '%';
+  if (pct) pct.textContent = progress + '% read';
+}
+
+// Active TOC link
+function updateTOC() {
+  const links = document.querySelectorAll('.stoc-link');
+  const headings = Array.from(document.querySelectorAll('.prose-content h2'));
+  let active = '';
+  headings.forEach(h => {
+    if (h.getBoundingClientRect().top < 120) active = h.id;
+  });
+  links.forEach(l => {
+    l.classList.toggle('active', l.getAttribute('href') === '#' + active);
+  });
+}
+
+window.addEventListener('scroll', () => { updateProgress(); updateTOC(); }, { passive: true });
+updateProgress();
+
+// Smooth scroll for TOC links
+document.querySelectorAll('.stoc-link, .toc-link').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href') || '');
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>

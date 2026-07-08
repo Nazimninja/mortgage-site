@@ -1,0 +1,491 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog');
+const posts = allPosts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()).slice(0, 3);
+---
+
+<Base title="Free Mortgage Calculator 2025 | MortgageCalc.us" description="Calculate your monthly mortgage payment including principal, interest, taxes, insurance, and HOA fees. View dynamic charts and full amortization schedules." page="home">
+
+<div class="hero">
+  <div class="hero-chip">
+    <div class="hero-chip-dot"></div>
+    <span>Updated for 2025 Rates</span>
+  </div>
+  <h1>Free <strong>Mortgage Calculator</strong></h1>
+  <p class="hero-sub">Estimate your monthly home payments, view a detailed expense breakdown, and see your full 30-year amortization schedule instantly.</p>
+  
+  <div class="hero-stats">
+    <div class="hstat">
+      <div class="hstat-n" id="stat-payment">$2,022</div>
+      <div class="hstat-l">Est. Monthly Pay</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-n" id="stat-interest">6.50%</div>
+      <div class="hstat-l">Average US Rate</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-n" id="stat-loan-amount">$320,000</div>
+      <div class="hstat-l">Total Loan Amount</div>
+    </div>
+  </div>
+</div>
+
+<div class="tool-grid">
+  <!-- INPUTS CARD -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon" style="background:var(--bluel);color:var(--blue);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 7h6M9 12h6M9 17h6"/></svg>
+      </div>
+      <div>
+        <div class="ch-title">Loan Details</div>
+        <div class="ch-sub">Enter your home price, down payment, and rate</div>
+      </div>
+    </div>
+
+    <!-- Home Price -->
+    <div class="field">
+      <label class="lbl" for="home-price">Home Price</label>
+      <div class="pfx">
+        <span>$</span>
+        <input type="number" id="home-price" value="400000" min="1000" step="5000" />
+      </div>
+    </div>
+
+    <!-- Down Payment & Down Payment % -->
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:14px;">
+      <div>
+        <label class="lbl" for="down-payment">Down Payment</label>
+        <div class="pfx">
+          <span>$</span>
+          <input type="number" id="down-payment" value="80000" min="0" step="1000" />
+        </div>
+      </div>
+      <div>
+        <label class="lbl" for="down-payment-pct">Down Payment %</label>
+        <div class="sfx">
+          <span>%</span>
+          <input type="number" id="down-payment-pct" value="20" min="0" max="100" step="1" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Loan Term & Interest Rate -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div>
+        <label class="lbl" for="loan-term">Loan Term</label>
+        <select id="loan-term">
+          <option value="30" selected>30 Years (Fixed)</option>
+          <option value="20">20 Years (Fixed)</option>
+          <option value="15">15 Years (Fixed)</option>
+          <option value="10">10 Years (Fixed)</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl" for="interest-rate">Interest Rate</label>
+        <div class="sfx">
+          <span>%</span>
+          <input type="number" id="interest-rate" value="6.5" min="0.1" max="25" step="0.01" />
+        </div>
+      </div>
+    </div>
+
+    <div class="input-section" style="margin-top:20px;border-top:1px solid var(--bd);padding-top:16px;">
+      <div class="input-section-label">Taxes, Insurance, & Fees</div>
+      
+      <!-- Property Tax -->
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:14px;">
+        <div>
+          <label class="lbl" for="property-tax">Property Tax (Annual)</label>
+          <div class="pfx">
+            <span>$</span>
+            <input type="number" id="property-tax" value="4800" min="0" step="100" />
+          </div>
+        </div>
+        <div>
+          <label class="lbl" for="property-tax-pct">Tax Rate %</label>
+          <div class="sfx">
+            <span>%</span>
+            <input type="number" id="property-tax-pct" value="1.2" min="0" max="10" step="0.01" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Home Insurance & HOA Fees -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label class="lbl" for="home-insurance">Insurance (Annual)</label>
+          <div class="pfx">
+            <span>$</span>
+            <input type="number" id="home-insurance" value="1200" min="0" step="50" />
+          </div>
+        </div>
+        <div>
+          <label class="lbl" for="hoa-fee">HOA Fee (Monthly)</label>
+          <div class="pfx">
+            <span>$</span>
+            <input type="number" id="hoa-fee" value="0" min="0" step="10" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS CARD -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon" style="background:var(--greenl);color:var(--green);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div>
+        <div class="ch-title">Monthly Payment</div>
+        <div class="ch-sub">Calculated breakdown of your housing cost</div>
+      </div>
+    </div>
+
+    <div class="result-hero">
+      <div class="result-label">Estimated Monthly Payment</div>
+      <div class="result-value" id="result-total-payment">$2,522</div>
+      <div class="result-sub" id="result-loan-summary">For a 30-year loan of $320,000 at 6.50%</div>
+    </div>
+
+    <!-- Visual Breakdown Progress Bars -->
+    <div style="margin-bottom:24px;">
+      <div class="brow-section-label">Payment Breakdown</div>
+      <div class="chart-wrap">
+        <!-- P&I -->
+        <div class="chart-row">
+          <div class="chart-lbl">Principal & Int.</div>
+          <div class="chart-track"><div class="chart-fill" id="bar-pi" style="background:var(--blue);width:80%;"></div></div>
+          <div class="chart-pct" id="pct-pi">80%</div>
+        </div>
+        <!-- Taxes -->
+        <div class="chart-row">
+          <div class="chart-lbl">Property Taxes</div>
+          <div class="chart-track"><div class="chart-fill" id="bar-tax" style="background:#f59e0b;width:13%;"></div></div>
+          <div class="chart-pct" id="pct-tax">13%</div>
+        </div>
+        <!-- Insurance -->
+        <div class="chart-row">
+          <div class="chart-lbl">Home Insurance</div>
+          <div class="chart-track"><div class="chart-fill" id="bar-ins" style="background:var(--green);width:4%;"></div></div>
+          <div class="chart-pct" id="pct-ins">4%</div>
+        </div>
+        <!-- HOA -->
+        <div class="chart-row">
+          <div class="chart-lbl">HOA Fees</div>
+          <div class="chart-track"><div class="chart-fill" id="bar-hoa" style="background:#a855f7;width:0%;"></div></div>
+          <div class="chart-pct" id="pct-hoa">0%</div>
+        </div>
+        <!-- PMI -->
+        <div class="chart-row" id="chart-row-pmi" style="display:none;">
+          <div class="chart-lbl">Private Ins (PMI)</div>
+          <div class="chart-track"><div class="chart-fill" id="bar-pmi" style="background:#ef4444;width:3%;"></div></div>
+          <div class="chart-pct" id="pct-pmi">3%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Expense Breakdown Table -->
+    <div class="breakdown">
+      <div class="brow">
+        <div class="brow-lbl"><span class="bdot" style="background:var(--blue);"></span>Principal & Interest</div>
+        <div class="brow-val" id="breakdown-pi">$2,022.62</div>
+      </div>
+      <div class="brow">
+        <div class="brow-lbl"><span class="bdot" style="background:#f59e0b;"></span>Property Taxes</div>
+        <div class="brow-val" id="breakdown-tax">$400.00</div>
+      </div>
+      <div class="brow">
+        <div class="brow-lbl"><span class="bdot" style="background:var(--green);"></span>Home Insurance</div>
+        <div class="brow-val" id="breakdown-ins">$100.00</div>
+      </div>
+      <div class="brow">
+        <div class="brow-lbl"><span class="bdot" style="background:#a855f7;"></span>HOA Fees</div>
+        <div class="brow-val" id="breakdown-hoa">$0.00</div>
+      </div>
+      <div class="brow" id="breakdown-row-pmi" style="display:none;">
+        <div class="brow-lbl"><span class="bdot" style="background:#ef4444;"></span>PMI (Under 20% Down)</div>
+        <div class="brow-val neg" id="breakdown-pmi">$133.33</div>
+      </div>
+      <div class="brow total">
+        <div class="brow-lbl">Total Monthly Payment</div>
+        <div class="brow-val" id="breakdown-total">$2,522.62</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AMORTIZATION SCHEDULE SECTION -->
+<section style="padding:1rem 0 5rem;">
+  <div class="container">
+    <div class="sec-label">Schedule</div>
+    <h2 class="sec-title">Amortization Table</h2>
+    
+    <div class="amort-wrap">
+      <table class="amort-table">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Starting Balance</th>
+            <th>Principal Paid</th>
+            <th>Interest Paid</th>
+            <th>Total Interest</th>
+            <th>Ending Balance</th>
+          </tr>
+        </thead>
+        <tbody id="amortization-body">
+          <!-- Filled by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO USE FAQ SECTION -->
+<section style="background:var(--surf);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);padding:5rem 0;">
+  <div class="container" style="max-width:800px;">
+    <div class="sec-label">FAQ</div>
+    <h2 class="sec-title">Common Mortgage Questions</h2>
+
+    <div class="faq-item">
+      <div class="faq-q"><span>What is included in a monthly mortgage payment?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a"><p>A standard monthly mortgage payment is often referred to as PITI: Principal, Interest, Taxes, and Insurance. It also includes Homeowners Association (HOA) fees if applicable, and Private Mortgage Insurance (PMI) if your down payment was less than 20%.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span>How does the down payment impact my monthly costs?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a"><p>A larger down payment reduces the total amount of money you need to borrow, which lowers your monthly principal and interest payment. Additionally, putting down at least 20% eliminates the need to pay for Private Mortgage Insurance (PMI), saving you hundreds of dollars per month.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span>What is Private Mortgage Insurance (PMI)?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a"><p>PMI is an extra insurance fee that lenders require if you borrow more than 80% of the home value (meaning your down payment is under 20%). It protects the lender in case you default on the loan. It typically costs between 0.5% and 1.5% of the loan amount annually.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- GUIDES GRID -->
+<section style="padding:5rem 0;">
+  <div class="container">
+    <div class="sec-label">Library</div>
+    <h2 class="sec-title">Expert Mortgage Guides</h2>
+    
+    <div class="blog-grid">
+      {posts.map(post => (
+        <a href={`/blog/${post.slug}`} class="blog-card">
+          <div style="height: 160px; background: linear-gradient(135deg, var(--blue)18, var(--blue)30); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            <div style={`width:44px;height:44px;background:${post.data.color};border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;`}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+          </div>
+          <div class="blog-card-body">
+            <div class="blog-tag">{post.data.tag}</div>
+            <div class="blog-card-title">{post.data.title}</div>
+            <div class="blog-card-excerpt">{post.data.description}</div>
+            <div class="blog-card-meta"><span>{post.data.date}</span><span>·</span><span>{post.data.readTime} read</span></div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATION ENGINE SCRIPT -->
+<script is:inline>
+  const homePriceInput = document.getElementById('home-price');
+  const downPaymentInput = document.getElementById('down-payment');
+  const downPaymentPctInput = document.getElementById('down-payment-pct');
+  const loanTermSelect = document.getElementById('loan-term');
+  const interestRateInput = document.getElementById('interest-rate');
+  const propertyTaxInput = document.getElementById('property-tax');
+  const propertyTaxPctInput = document.getElementById('property-tax-pct');
+  const homeInsuranceInput = document.getElementById('home-insurance');
+  const hoaFeeInput = document.getElementById('hoa-fee');
+
+  // Sync inputs and run calculations
+  function calculate() {
+    const homePrice = parseFloat(homePriceInput.value) || 0;
+    const downPayment = parseFloat(downPaymentInput.value) || 0;
+    const downPaymentPct = parseFloat(downPaymentPctInput.value) || 0;
+    const termYears = parseFloat(loanTermSelect.value) || 30;
+    const annualRate = parseFloat(interestRateInput.value) || 6.5;
+    const propertyTax = parseFloat(propertyTaxInput.value) || 0;
+    const annualInsurance = parseFloat(homeInsuranceInput.value) || 0;
+    const monthlyHoa = parseFloat(hoaFeeInput.value) || 0;
+
+    const loanAmount = Math.max(0, homePrice - downPayment);
+    document.getElementById('stat-loan-amount').textContent = '$' + Math.round(loanAmount).toLocaleString();
+    document.getElementById('stat-interest').textContent = annualRate.toFixed(2) + '%';
+
+    // Calculate PMI: if down payment is < 20% of home price, assume 0.5% annual rate
+    const isPmiActive = downPayment < (homePrice * 0.20);
+    const monthlyPmi = isPmiActive ? (loanAmount * 0.005) / 12 : 0;
+
+    if (isPmiActive) {
+      document.getElementById('breakdown-row-pmi').style.display = 'flex';
+      document.getElementById('chart-row-pmi').style.display = 'flex';
+      document.getElementById('breakdown-pmi').textContent = '$' + monthlyPmi.toFixed(2);
+    } else {
+      document.getElementById('breakdown-row-pmi').style.display = 'none';
+      document.getElementById('chart-row-pmi').style.display = 'none';
+    }
+
+    // Monthly Principal & Interest (P&I)
+    const monthlyRate = annualRate / 100 / 12;
+    const totalPayments = termYears * 12;
+    let monthlyPI = 0;
+    
+    if (loanAmount > 0) {
+      if (monthlyRate > 0) {
+        monthlyPI = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / (Math.pow(1 + monthlyRate, totalPayments) - 1);
+      } else {
+        monthlyPI = loanAmount / totalPayments;
+      }
+    }
+
+    const monthlyTax = propertyTax / 12;
+    const monthlyInsurance = annualInsurance / 12;
+    const totalMonthly = monthlyPI + monthlyTax + monthlyInsurance + monthlyHoa + monthlyPmi;
+
+    // Update Result card
+    document.getElementById('result-total-payment').textContent = '$' + Math.round(totalMonthly).toLocaleString();
+    document.getElementById('stat-payment').textContent = '$' + Math.round(totalMonthly).toLocaleString();
+    document.getElementById('result-loan-summary').textContent = `For a ${termYears}-year loan of $${Math.round(loanAmount).toLocaleString()} at ${annualRate.toFixed(2)}%`;
+
+    document.getElementById('breakdown-pi').textContent = '$' + monthlyPI.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('breakdown-tax').textContent = '$' + monthlyTax.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('breakdown-ins').textContent = '$' + monthlyInsurance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('breakdown-hoa').textContent = '$' + monthlyHoa.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('breakdown-total').textContent = '$' + totalMonthly.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Update charts & percentages
+    const piPct = totalMonthly > 0 ? (monthlyPI / totalMonthly) * 100 : 0;
+    const taxPct = totalMonthly > 0 ? (monthlyTax / totalMonthly) * 100 : 0;
+    const insPct = totalMonthly > 0 ? (monthlyInsurance / totalMonthly) * 100 : 0;
+    const hoaPct = totalMonthly > 0 ? (monthlyHoa / totalMonthly) * 100 : 0;
+    const pmiPct = totalMonthly > 0 ? (monthlyPmi / totalMonthly) * 100 : 0;
+
+    document.getElementById('pct-pi').textContent = Math.round(piPct) + '%';
+    document.getElementById('bar-pi').style.width = piPct + '%';
+
+    document.getElementById('pct-tax').textContent = Math.round(taxPct) + '%';
+    document.getElementById('bar-tax').style.width = taxPct + '%';
+
+    document.getElementById('pct-ins').textContent = Math.round(insPct) + '%';
+    document.getElementById('bar-ins').style.width = insPct + '%';
+
+    document.getElementById('pct-hoa').textContent = Math.round(hoaPct) + '%';
+    document.getElementById('bar-hoa').style.width = hoaPct + '%';
+
+    if (isPmiActive) {
+      document.getElementById('pct-pmi').textContent = Math.round(pmiPct) + '%';
+      document.getElementById('bar-pmi').style.width = pmiPct + '%';
+    }
+
+    // Build Amortization table Year-by-Year
+    const body = document.getElementById('amortization-body');
+    body.innerHTML = '';
+
+    let balance = loanAmount;
+    let accumulatedInterest = 0;
+
+    for (let year = 1; year <= termYears; year++) {
+      let principalPaidThisYear = 0;
+      let interestPaidThisYear = 0;
+      const startBalance = balance;
+
+      for (let month = 1; month <= 12; month++) {
+        if (balance <= 0) break;
+        const interestPaidThisMonth = balance * monthlyRate;
+        const principalPaidThisMonth = Math.min(balance, monthlyPI - interestPaidThisMonth);
+        
+        interestPaidThisYear += interestPaidThisMonth;
+        principalPaidThisYear += principalPaidThisMonth;
+        balance -= principalPaidThisMonth;
+      }
+
+      accumulatedInterest += interestPaidThisYear;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>Year ${year}</td>
+        <td>$${Math.round(startBalance).toLocaleString()}</td>
+        <td>$${Math.round(principalPaidThisYear).toLocaleString()}</td>
+        <td>$${Math.round(interestPaidThisYear).toLocaleString()}</td>
+        <td>$${Math.round(accumulatedInterest).toLocaleString()}</td>
+        <td>$${Math.round(Math.max(0, balance)).toLocaleString()}</td>
+      `;
+      body.appendChild(tr);
+    }
+  }
+
+  // Input sync logic
+  homePriceInput.addEventListener('input', () => {
+    const price = parseFloat(homePriceInput.value) || 0;
+    const pct = parseFloat(downPaymentPctInput.value) || 0;
+    downPaymentInput.value = Math.round(price * (pct / 100));
+    
+    // Auto recalculate property tax as 1.2% of home price
+    const taxRate = parseFloat(propertyTaxPctInput.value) || 1.2;
+    propertyTaxInput.value = Math.round(price * (taxRate / 100));
+    
+    calculate();
+  });
+
+  downPaymentInput.addEventListener('input', () => {
+    const price = parseFloat(homePriceInput.value) || 0;
+    const dp = parseFloat(downPaymentInput.value) || 0;
+    if (price > 0) {
+      downPaymentPctInput.value = Math.round((dp / price) * 100);
+    }
+    calculate();
+  });
+
+  downPaymentPctInput.addEventListener('input', () => {
+    const price = parseFloat(homePriceInput.value) || 0;
+    const pct = parseFloat(downPaymentPctInput.value) || 0;
+    downPaymentInput.value = Math.round(price * (pct / 100));
+    calculate();
+  });
+
+  propertyTaxInput.addEventListener('input', () => {
+    const price = parseFloat(homePriceInput.value) || 0;
+    const tax = parseFloat(propertyTaxInput.value) || 0;
+    if (price > 0) {
+      propertyTaxPctInput.value = ((tax / price) * 100).toFixed(2);
+    }
+    calculate();
+  });
+
+  propertyTaxPctInput.addEventListener('input', () => {
+    const price = parseFloat(homePriceInput.value) || 0;
+    const pct = parseFloat(propertyTaxPctInput.value) || 0;
+    propertyTaxInput.value = Math.round(price * (pct / 100));
+    calculate();
+  });
+
+  interestRateInput.addEventListener('input', calculate);
+  loanTermSelect.addEventListener('change', calculate);
+  homeInsuranceInput.addEventListener('input', calculate);
+  hoaFeeInput.addEventListener('input', calculate);
+
+  // FAQ Expand/Collapse
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const q = item.querySelector('.faq-q');
+    const a = item.querySelector('.faq-a');
+    const icon = item.querySelector('.faq-icon');
+    q.addEventListener('click', () => {
+      a.classList.toggle('open');
+      icon.classList.toggle('open');
+      icon.textContent = a.classList.contains('open') ? '×' : '+';
+    });
+  });
+
+  // Run initial calculation
+  calculate();
+</script>
+
+</Base>
