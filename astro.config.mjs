@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 export default defineConfig({
-  site: 'https://mortgagecalc.us',
+  site: 'https://mortgage.socialninjas.in',
   output: 'static',
   compressHTML: true,
   build: { assets: 'assets' }
