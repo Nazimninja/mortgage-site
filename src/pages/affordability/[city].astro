@@ -1,0 +1,178 @@
+---
+import Base from '../../layouts/Base.astro';
+import { cities } from '../../data/cities';
+
+export async function getStaticPaths() {
+  return cities.map(city => ({
+    params: { city: city.slug },
+    props: city
+  }));
+}
+
+const city = Astro.props;
+const { name, state, stateCode, medianPrice, medianIncome, propertyTax, appreciation } = city;
+
+// Mortgage calculations
+const rate = 0.068;
+const downPct = 0.20;
+const loanAmt = Math.round(medianPrice * (1 - downPct));
+const monthlyRate = rate / 12;
+const n = 360;
+const monthlyPI = Math.round(loanAmt * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1));
+const monthlyTax = Math.round((medianPrice * propertyTax) / 12);
+const monthlyInsurance = Math.round((medianPrice * 0.004) / 12);
+const totalMonthly = monthlyPI + monthlyTax + monthlyInsurance;
+const requiredIncome = Math.round((totalMonthly * 12) / 0.28);
+const affordRatio = Math.round((medianPrice / medianIncome) * 10) / 10;
+const downPayment = Math.round(medianPrice * downPct);
+
+const citySlug = Astro.params.city;
+const pageTitle = `Home Affordability in ${name}, ${stateCode} (2025) | Mortgage Calculator`;
+const pageDesc = `Median home price in ${name}, ${state} is $${medianPrice.toLocaleString()}. Required income to buy: $${requiredIncome.toLocaleString()}/yr. Monthly payment: $${totalMonthly.toLocaleString()}. See full affordability breakdown.`;
+const canonical = `https://mortgage.socialninjas.in/affordability/${citySlug}/`;
+
+const isAffordable = affordRatio <= 4;
+const affordLabel = affordRatio <= 3 ? 'Very Affordable' : affordRatio <= 4 ? 'Affordable' : affordRatio <= 6 ? 'Moderately Expensive' : 'Expensive';
+const affordColor = affordRatio <= 3 ? '#16a34a' : affordRatio <= 4 ? '#2563eb' : affordRatio <= 6 ? '#d97706' : '#dc2626';
+---
+
+<Base title={pageTitle} description={pageDesc} canonical={canonical} page="city-afford">
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": `What is the median home price in ${name}, ${stateCode}?`,
+      "acceptedAnswer": { "@type": "Answer", "text": `The median home price in ${name}, ${state} is $${medianPrice.toLocaleString()} (2025). This represents a price-to-income ratio of ${affordRatio}x.` }
+    },
+    {
+      "@type": "Question",
+      "name": `How much income do you need to buy a home in ${name}?`,
+      "acceptedAnswer": { "@type": "Answer", "text": `To afford the median home in ${name} (priced at $${medianPrice.toLocaleString()}) with 20% down and a 6.8% mortgage rate, you need a gross annual income of at least $${requiredIncome.toLocaleString()} using the 28% housing expense rule.` }
+    },
+    {
+      "@type": "Question",
+      "name": `What is the monthly mortgage payment in ${name}?`,
+      "acceptedAnswer": { "@type": "Answer", "text": `A 30-year mortgage on the median ${name} home ($${medianPrice.toLocaleString()}) with 20% down ($${downPayment.toLocaleString()}) costs approximately $${totalMonthly.toLocaleString()}/month — including principal & interest ($${monthlyPI.toLocaleString()}), property tax ($${monthlyTax.toLocaleString()}), and insurance ($${monthlyInsurance.toLocaleString()}).` }
+    },
+    {
+      "@type": "Question",
+      "name": `Is ${name} affordable to buy a home in 2025?`,
+      "acceptedAnswer": { "@type": "Answer", "text": `${name} has a price-to-income ratio of ${affordRatio}x, making it "${affordLabel}". The median household income of $${medianIncome.toLocaleString()} vs. the required income of $${requiredIncome.toLocaleString()} shows a ${requiredIncome > medianIncome ? 'significant affordability gap' : 'relatively accessible market'}.` }
+    }
+  ]
+})}></script>
+
+<div class="container" style="max-width:900px;margin:40px auto;padding:0 20px;">
+
+  <!-- BREADCRUMB -->
+  <nav style="font-size:13px;color:#94a3b8;margin-bottom:24px;">
+    <a href="/" style="color:#1F4B99;text-decoration:none;">Home</a> →
+    <a href="/affordability/" style="color:#1F4B99;text-decoration:none;">Affordability</a> →
+    <span>{name}, {stateCode}</span>
+  </nav>
+
+  <!-- HERO -->
+  <div style="text-align:center;margin-bottom:40px;">
+    <div style={`display:inline-block;padding:4px 14px;background:${affordColor}18;color:${affordColor};border-radius:20px;font-weight:600;font-size:13px;margin-bottom:12px;border:1px solid ${affordColor}30;`}>
+      {affordLabel} · Price-to-Income {affordRatio}x
+    </div>
+    <h1 style="font-size:clamp(24px,4vw,38px);font-weight:800;color:#0f172a;line-height:1.2;margin-bottom:12px;">
+      Home Affordability in {name}, {stateCode}
+    </h1>
+    <p style="font-size:16px;color:#64748b;max-width:600px;margin:0 auto;">
+      Median home price: <strong>${medianPrice.toLocaleString()}</strong>. Median household income: <strong>${medianIncome.toLocaleString()}</strong>. Monthly payment with 20% down: <strong>${totalMonthly.toLocaleString()}/mo</strong>.
+    </p>
+  </div>
+
+  <!-- KEY STATS GRID -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:36px;">
+    {[
+      { label: 'Median Home Price', value: `$${medianPrice.toLocaleString()}`, color: '#1F4B99' },
+      { label: 'Monthly Payment', value: `$${totalMonthly.toLocaleString()}`, color: '#16a34a' },
+      { label: 'Required Income', value: `$${requiredIncome.toLocaleString()}/yr`, color: '#d97706' },
+      { label: 'Down Payment (20%)', value: `$${downPayment.toLocaleString()}`, color: '#7c3aed' },
+    ].map(s => (
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+        <div style={`font-size:22px;font-weight:800;color:${s.color};margin-bottom:4px;`}>{s.value}</div>
+        <div style="font-size:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">{s.label}</div>
+      </div>
+    ))}
+  </div>
+
+  <!-- PAYMENT BREAKDOWN -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:28px;margin-bottom:28px;">
+    <h2 style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:20px;">Monthly Payment Breakdown — {name}</h2>
+    <div style="display:flex;flex-direction:column;gap:14px;font-size:15px;">
+      <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid #f1f5f9;">
+        <span style="color:#64748b;">Loan Amount (80% LTV)</span>
+        <span style="font-weight:700;">${loanAmt.toLocaleString()}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid #f1f5f9;">
+        <span style="color:#64748b;">Principal & Interest (6.8%, 30yr)</span>
+        <span style="font-weight:600;">${monthlyPI.toLocaleString()}/mo</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid #f1f5f9;">
+        <span style="color:#64748b;">Property Tax ({(propertyTax * 100).toFixed(2)}% annual)</span>
+        <span style="font-weight:600;">${monthlyTax.toLocaleString()}/mo</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid #f1f5f9;">
+        <span style="color:#64748b;">Homeowner's Insurance (est.)</span>
+        <span style="font-weight:600;">${monthlyInsurance.toLocaleString()}/mo</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:17px;font-weight:800;padding-top:4px;">
+        <span style="color:#1F4B99;">Total Monthly Payment</span>
+        <span style="color:#16a34a;">${totalMonthly.toLocaleString()}/mo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- AFFORDABILITY ANALYSIS -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:28px;margin-bottom:28px;">
+    <h2 style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:20px;">{name} Affordability Analysis</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      {[
+        { label: 'Median Household Income', value: `$${medianIncome.toLocaleString()}`, note: 'Area median' },
+        { label: 'Income Required to Buy', value: `$${requiredIncome.toLocaleString()}`, note: '28% rule, 20% down' },
+        { label: 'Price-to-Income Ratio', value: `${affordRatio}x`, note: affordLabel },
+        { label: '5-Year Appreciation Rate', value: `${appreciation}%/yr`, note: 'Historical avg.' },
+      ].map(item => (
+        <div style="padding:16px;background:#f8fafc;border-radius:12px;">
+          <div style="font-size:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">{item.label}</div>
+          <div style="font-size:20px;font-weight:800;color:#0f172a;">{item.value}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:4px;">{item.note}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="text-align:center;background:linear-gradient(135deg,#1F4B99,#153880);padding:32px;border-radius:20px;color:#fff;margin-bottom:36px;">
+    <h3 style="font-size:22px;font-weight:800;margin-bottom:8px;">Calculate your exact budget for {name}</h3>
+    <p style="font-size:15px;opacity:0.9;max-width:460px;margin:0 auto 20px;">Use our full affordability calculator with your income, debts, and down payment amount.</p>
+    <a href="/affordability/" style="display:inline-block;background:#fff;color:#1F4B99;padding:12px 28px;border-radius:12px;font-weight:700;text-decoration:none;">
+      Open Affordability Calculator →
+    </a>
+  </div>
+
+  <!-- NEARBY CITIES -->
+  <div>
+    <h2 style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:16px;">Compare Other Cities</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      {[
+        {slug:'austin-tx',name:'Austin TX'},{slug:'miami-fl',name:'Miami FL'},{slug:'phoenix-az',name:'Phoenix AZ'},
+        {slug:'denver-co',name:'Denver CO'},{slug:'nashville-tn',name:'Nashville TN'},{slug:'seattle-wa',name:'Seattle WA'},
+        {slug:'charlotte-nc',name:'Charlotte NC'},{slug:'dallas-tx',name:'Dallas TX'},{slug:'atlanta-ga',name:'Atlanta GA'},
+        {slug:'houston-tx',name:'Houston TX'},{slug:'los-angeles-ca',name:'Los Angeles CA'},{slug:'chicago-il',name:'Chicago IL'},
+      ].filter(c => c.slug !== citySlug).map(c => (
+        <a href={`/affordability/${c.slug}/`} style="padding:8px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;font-size:13px;font-weight:600;color:#334155;text-decoration:none;">
+          {c.name}
+        </a>
+      ))}
+    </div>
+  </div>
+
+</div>
+</Base>
